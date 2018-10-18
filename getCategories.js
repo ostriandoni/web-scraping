@@ -3,7 +3,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const Promise = require('bluebird');
 
-module.exports = function getUrlCategories(source) {
+module.exports = function getCategories(source) {
   return new Promise((resolve, reject) => {
     request(source, (err, res, html) => {
       if (err && res.statusCode !== 200) reject(err);

@@ -1,19 +1,34 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
-const getUrlCategories = require('./getUrlCategories');
-const getUrlSubCategories = require('./getUrlSubCategories');
+const getCategories = require('./getCategories');
+const getPromotionDetail = require('./getPromotionDetail');
+const writePromotionDetail = require('./writePromotionDetail');
 
 const source = 'https://www.bankmega.com';
 let link = `${source}/promolainnya.php`;
 
-getUrlCategories(link).then((urlCategories) => {
-  console.log('start...');
-  return Promise.all(
+function delay(x) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(x);
+    }, 45000);
+  });
+}
+
+getCategories(link)
+  .then((urlCategories) => {
+    const promises = [];
     _.map(urlCategories, (item) => {
       link = `${source}/${item.url}`;
-      return getUrlSubCategories(link).then((aa) => {
-        console.log(aa);
-      });
-    })
-  );
-});
+      promises.push(getPromotionDetail(item.category, source, link));
+    });
+
+    return Promise.all(promises);
+  })
+  .then(async () => {
+    const isDone = await delay(1);
+
+    if (isDone) {
+      writePromotionDetail();
+    }
+  });
